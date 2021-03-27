@@ -15,7 +15,7 @@ import statsmodels.api as sm
 
 
 
-os.chdir("/Users/fredrikfusdahl/Documents/Master Thesis")
+
 #Import CRSP data
 data = pd.read_csv('testData.csv')
 data = data.dropna()
