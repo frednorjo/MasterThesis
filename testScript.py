@@ -54,8 +54,6 @@ x['mVOL'] = (x['dVOL'].rolling(20).sum())/20
 model = sm.OLS(x['dVOL'] , missing='drop')
 res = model.fit()
 print(res.summary())
-print("hello world")
-
 
 
 
