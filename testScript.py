@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 #from masterthesisfunctions import *
 import statsmodels.api as sm
-
+from functions import *
+print(test_function())
 #Import CRSP data
 data = pd.read_csv('testData.csv')
 data = data.dropna()
