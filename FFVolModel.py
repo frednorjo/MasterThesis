@@ -40,17 +40,33 @@ lm = LinearRegression().fit(X,y)
 #%%
 #Estimate model and measure insample fit for 500 most liquid stocks in 2020
 df_2020 = df.loc[df['date'] > 20200000]
+permno_2020 = df_2020.PERMNO.unique()
 mean_volume = df_2020.groupby('PERMNO')['VOL'].mean()
 
 #choose the 500 PERMNO codes with highest average volume
-ind = sorted_enumerate(mean_volume)
-permno_2020 = permno_2020[ind[-500:-1]]
+ind = np.argsort(mean_volume)[::-1]
 
-for i in range(start = 0, stop = permno_2020.shape[0]):
+#lets test with one stock only
+df_stock = df[df['PERMNO'] == permno_2020[ind.iloc[7]]]
+#Predict
+y_hat = lm.predict(df_stock[['dVOL', '5VOL', '20VOL']])
+
+#Plot predicted vol with with realized vol
+x = range(1, y_hat.shape[0]+1)
+plt.plot(x, df_stock['dVOL'])
+plt.plot(x, y_hat, 'o')
+
+yhat = model.predict(X)
+
+SS_Residual = sum((y-yhat)**2)       
+SS_Total = sum((y-np.mean(y))**2)     
+r_squared = 1 - (float(SS_Residual))/SS_Total
+adjusted_r_squared = 1 - (1-r_squared)*(len(y)-1)/(len(y)-X.shape[1]-1)
+print r_squared, adjusted_r_squared
+
+
     
-#%%
-mean_volume = df_2020.groupby('PERMNO')['VOL'].mean()
-    
+
     
 
     
@@ -64,7 +80,6 @@ mean_volume = df_2020.groupby('PERMNO')['VOL'].mean()
 
 
     
-
 #%%    
     
     
