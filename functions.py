@@ -21,12 +21,11 @@ def sorted_enumerate(seq):
     return [i for (v, i) in sorted((v, i) for (i, v) in enumerate(seq))]
 
 def R2(y, yhat):
-    yhat = model.predict(X)
     SS_Residual = sum((y-yhat)**2)       
     SS_Total = sum((y-np.mean(y))**2)     
     r_squared = 1 - (float(SS_Residual))/SS_Total
     #adjusted_r_squared = 1 - (1-r_squared)*(len(y)-1)/(len(y)-X.shape[1]-1)
-    print r_squared#, adjusted_r_squared
+    return r_squared
 
 
 
