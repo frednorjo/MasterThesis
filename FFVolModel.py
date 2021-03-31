@@ -21,72 +21,38 @@ data = data.dropna()
 #data['date'] = pd.to_datetime(data['date'], format='%Y%m%d')
 #Get unique set with company permno
 permno = data.PERMNO.unique()
+most_active_options = pd.read_csv('active_options.csv')
+most_active_options_permno = most_active_options['PERMNO'].unique()
+most_active_options_ticker = most_active_options['TICKER'].unique()
+
 
 data['CLOSEPRC'] = (data['ASK'] + data['BID'])/2
 data['SIZE'] = data['SHROUT']*data['CLOSEPRC']
 
 #Create measure for daily, weekly and monthly vol. 
 df = RV(data, [5, 20])
-
-#Estimate model HAR model in panel data
-df['future'] = df.groupby('PERMNO')['dVOL'].shift(-1)
-df['dVOL_2'] = df['dVOL']**2
-df['5VOL_2'] = df['5VOL']**2
-df['20VOL_2'] = df['20VOL']**2
-df = df.dropna()
-
-#%%# Estimate model HAR model in panel data
-X = df[['dVOL', '5VOL', '20VOL', 'dVOL_2', '5VOL_2', '20VOL_2']]
-y = df['future']
-lm = LinearRegression().fit(X,y)
-
+df = addLag(df, 5)
 #%%
-#Estimate model and measure insample fit for 500 most liquid stocks in 2020
-df_2020 = df.loc[df['date'] > 20200000]
-permno_2020 = df_2020.PERMNO.unique()
-mean_volume = df_2020.groupby('PERMNO')['VOL'].median()
+y_hat, y = inSampleOLS(df, most_active_options_permno[0], 'daily')
+r_2 = R2(y, y_hat) 
 
-#choose the 500 PERMNO codes with highest average volume
-ind = np.argsort(mean_volume)[::-1][0:50]
-r2_vec3 = np.zeros((len(ind), 1))
-
-
-
-#%%
-for i in range(0, len(ind)):
-    #lets test with one stock only
-    df_stock = df[df['PERMNO'] == permno_2020[ind.iloc[i]]]
-    #Predict
-    y_hat = lm.predict(df_stock[['dVOL', '5VOL', '20VOL', 'dVOL_2', '5VOL_2', '20VOL_2']])
-    
-    #Plot predicted vol with with realized vol
-    r_squared = R2(df_stock['dVOL'], y_hat)
-    r2_vec3[i] = r_squared
-    x = range(1, y_hat.shape[0]+1)
-    plt.plot(x, df_stock['dVOL'])
-    plt.plot(x, y_hat, 'o')
-    plt.title(str(r_squared))
-    plt.show()
+n1 = 0
+n2 = 400
+x = range(1, y_hat.shape[0]+1)
+plt.plot(x[n1:n2], y[n1:n2], '-')
+plt.plot(x[n1:n2], y_hat[n1:n2], '-')
+plt.title(most_active_options_ticker[0]+ " " + str(r_2))
 
 
 
-#%%
-plt.plot(range(1, len(r2_vec)+1), r2_vec, 'g-')
-plt.plot(range(1, len(r2_vec)+1), r2_vec1, 'r-')
-plt.plot(range(1, len(r2_vec)+1), r2_vec3, 'b-')
-        
 
-    
-
-    
-
-
-    
 
 
 
 
 #%%    
+
+
     
     
 
